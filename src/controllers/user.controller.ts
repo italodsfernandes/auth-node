@@ -4,12 +4,17 @@ import { AuthenticateUserService } from '../services/user/authenticateUser.servi
 import { CreateUserService } from '../services/user/createUser.service'
 
 export class UserController {
+   private userRepository: UserRepository
+
+   constructor() {
+      this.userRepository = new PrismaUserRepository();
+   }
+
    async create(request: Request, response: Response) {
-      const userRepository = new PrismaUserRepository()
 
       const { name, email, password } = request.body
 
-      const createUserService = new CreateUserService(userRepository)
+      const createUserService = new CreateUserService(this.userRepository)
 
       const user = await createUserService.execute({ name, email, password })
 
@@ -17,12 +22,11 @@ export class UserController {
    }
 
    async authenticate(request: Request, response: Response) {
-      const userRepository = new PrismaUserRepository()
 
       const { email, password } = request.body
 
       const authenticateUserService = new AuthenticateUserService(
-         userRepository,
+         this.userRepository,
       )
 
       const token = await authenticateUserService.execute({ email, password })
